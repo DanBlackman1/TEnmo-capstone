@@ -1,12 +1,14 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Account;
+import com.techelevator.tenmo.model.User;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.List;
 
 @Component
 public class JdbcAccountDao implements AccountDao {
@@ -29,12 +31,37 @@ public class JdbcAccountDao implements AccountDao {
         return account;
     }
 
+    @Override
+    public List<User> listAllUsers(){
+        List<User> userList = null;
+
+        String sql = "SELECT user_id, username, password_hash, FROM users ";
+        SqlRowSet results = jdbctemplate.queryForRowSet(sql);
+        while (results.next()) {
+            userList.add(mapRowToUser(results));
+
+        }
+        return  userList;
+    }
+
     private Account mapRowToAccount(SqlRowSet results) {
         int accountId = results.getInt("account_id");
         int userId = results.getInt("user_id");
         BigDecimal accountBalance = results.getBigDecimal("balance");
         Account account = new Account(accountId, userId, accountBalance);
         return account;
+    }
+
+    private User mapRowToUser(SqlRowSet results) {
+        long id = results.getLong("user_id");
+        String username = results.getString("username");
+        String password = results.getString("password_hash");
+
+        User user = new User();
+        user.setId(id);
+        user.setUsername(username);
+        user.setPassword(password);
+        return user;
     }
 
 }
