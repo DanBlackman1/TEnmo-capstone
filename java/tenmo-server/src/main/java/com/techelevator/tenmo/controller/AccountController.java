@@ -17,14 +17,10 @@ public class AccountController {
     @Autowired
     AccountDao accountDao;
 
-
-
     @GetMapping("")
-    @PreAuthorize("permitAll")
-    public BigDecimal getBalance(Principal principal) {
-       // BigDecimal balance = accountDao.getAccountBalance(id).getAccountBalance();
-        BigDecimal balance = accountDao.getAccountBalance(principal.getName());
-        return balance;
+    public Account getBalance(Principal principal) {
+        Account account = accountDao.getAccountBalance(principal.getName());
+        return account;
     }
 
 
