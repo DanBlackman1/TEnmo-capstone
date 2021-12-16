@@ -1,9 +1,6 @@
 package com.techelevator.tenmo;
 
-import com.techelevator.tenmo.model.Account;
-import com.techelevator.tenmo.model.AuthenticatedUser;
-import com.techelevator.tenmo.model.User;
-import com.techelevator.tenmo.model.UserCredentials;
+import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
@@ -95,29 +92,57 @@ public class App {
 
     }
 
+    // ADD the part of the method that talks to AccountService
     private void sendBucks() {
         // TODO Auto-generated method stub
-        boolean cancelSendTransaction = false;
-        User destinationUser = null;
+        boolean doneSelectingUser = false;
+        boolean doneSelectingAmount = false;
 
-        while (cancelSendTransaction == false) {
+        // ******************************Holder for DTO Object*******************************
+        TransferDTO transfer = new TransferDTO();
+        transfer.setUserFrom(currentUser.getUser().getId());
+
+        // ******************************Presenting the list of users*******************************
+        while (doneSelectingUser == false) {
             List<User> userList = accountService.getAllAccounts((currentUser.getToken()));
             console.presentUserList(userList);
+
+            // ******************************Gather user input*******************************
             String answer = console.getUserInput("ID to send to");
             Integer destinationId = Integer.parseInt(answer);
 
+// ******************************Evaluating validity of userid*******************************
             if (answer.equals("0")) {
-                cancelSendTransaction = true;
+                doneSelectingUser = true;
             }
 
             for (User user : userList) {
                 if (user.getId() == destinationId) {
-                    destinationUser = user;
-                    cancelSendTransaction = true;
+
+                    transfer.setUserTo(destinationId);
+                    doneSelectingUser = true;
                 }
             }
 
+            while (doneSelectingAmount == false) {
+// ******************************Prompt for amount*******************************
+                BigDecimal moneyToSend = new BigDecimal(console.getUserInputInteger("Enter amount"));
+// ***********************validate amount (balance sufficient?)********************
+                Account account = accountService.getBalance(currentUser.getToken());
 
+                if (moneyToSend.compareTo(account.getAccountBalance()) <= 0.0) {
+                    transfer.setAmount(moneyToSend);
+                    doneSelectingAmount = true;
+
+                } else {
+                    console.presentBalance(account.getAccountBalance());
+                    console.messageToUser("Current transfer amount greater than available balance.  Please try again!");
+                }
+            }
+        }
+       boolean success = accountService.sendTransfer(currentUser.getToken(), transfer);
+        if (success) {
+            console.messageToUser("Grand success!");
         }
     }
 

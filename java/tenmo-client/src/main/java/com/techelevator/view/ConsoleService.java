@@ -98,4 +98,10 @@ public class ConsoleService {
 		System.out.println("Enter ID of user you are sending to (0 to cancel):");
 		System.out.println();
 	}
+
+	public void messageToUser(String prompt) {
+		System.out.println(prompt);
+	}
+
+
 }

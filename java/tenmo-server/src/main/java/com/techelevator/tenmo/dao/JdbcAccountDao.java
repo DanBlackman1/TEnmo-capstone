@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Account;
+import com.techelevator.tenmo.model.TransferDTO;
 import com.techelevator.tenmo.model.User;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -42,6 +43,20 @@ public class JdbcAccountDao implements AccountDao {
 
         }
         return  userList;
+    }
+
+    public void processTransfer(TransferDTO transferDTO){
+
+        String sqlBegin = "BEGIN TRANSACTION;";
+        String sqlEnd = "COMMIT;";
+
+        String sqlBalIncrease = "UPDATE accounts SET balance = balance + ? WHERE user_id = ?";
+        String sqlBalDecrease = "UPDATE accounts SET balance = balance - ? WHERE user_id = ?";
+
+        SqlRowSet results = jdbctemplate.queryForRowSet(sqlBegin + sqlBalDecrease + sqlBalIncrease + sqlEnd,
+                transferDTO.getAmount(), transferDTO.getUserFrom(), transferDTO.getAmount(), transferDTO.getUserTo());
+        // CREATE A TRANSFER RECORDED METHOD LATER TO HOUSE THE BELOW LOGIC
+        
     }
 
     private Account mapRowToAccount(SqlRowSet results) {
