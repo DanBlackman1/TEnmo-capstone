@@ -10,8 +10,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
+
 import java.security.Principal;
-import java.util.List;
+
 
 @RestController
 @RequestMapping("/accounts")
@@ -41,10 +42,13 @@ public class AccountController {
         return transferDTO;
     }
 
-    @GetMapping("/transfers")
+    @RequestMapping(path = "/transfers", method = RequestMethod.GET)
     public TransferDTO[] transferList(Principal principal) {
-       return accountDao.listTransfers(userDao.findByUsername(principal.getName()).getId()).toArray(new TransferDTO[0]);
-
+       long userId = userDao.findIdByUsername(principal.getName());
+       return accountDao.listTransfers(userId);
+       // TransferDTO[] transfers;
+       // transfers = new TransferDTO[]{};
+        //return transfers;
     }
 
 

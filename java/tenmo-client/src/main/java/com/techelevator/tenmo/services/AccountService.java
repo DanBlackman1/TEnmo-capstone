@@ -30,7 +30,7 @@ public class AccountService {
 
         ResponseEntity<User[]> response = restTemplate.exchange(url + "/users", HttpMethod.GET, entity, User[].class);
         User[] users = response.getBody();
-        return /*new ArrayList<>(Arrays.asList(*/ users;
+        return users;
     }
 
     public TransferDTO[] viewUserTransfers(String token) {
@@ -38,9 +38,8 @@ public class AccountService {
 
         ResponseEntity<TransferDTO[]> response =
                 restTemplate.exchange(url + "/transfers" , HttpMethod.GET, entity, TransferDTO[].class);
-
     TransferDTO[] transfers = response.getBody();
-    return  transfers;
+    return transfers;
     }
 
     public boolean sendTransfer(String token, TransferDTO transferDTO) {

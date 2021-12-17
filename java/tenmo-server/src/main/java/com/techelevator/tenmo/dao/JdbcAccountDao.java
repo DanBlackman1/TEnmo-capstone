@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -64,9 +66,8 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
-    public List<TransferDTO> listTransfers(long userId) {
-        List<TransferDTO> transferList = null;
-
+    public TransferDTO[] listTransfers(long userId) {
+        List<TransferDTO> transferList = new ArrayList<>();
         String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from,\n" +
                 "                account_to, amount FROM transfers\n" +
                 "                JOIN accounts ON transfers.account_from = accounts.account_id OR\n" +
@@ -75,9 +76,11 @@ public class JdbcAccountDao implements AccountDao {
         SqlRowSet results = jdbctemplate.queryForRowSet(sql, userId);
         while (results.next()) {
             TransferDTO transferDTO = mapRowToTransferDTO(results);
-            transferList.add(transferDTO);
+                transferList.add(transferDTO);
         }
-        return transferList;
+        TransferDTO[] transfers = new TransferDTO[transferList.size()];
+        transfers = transferList.toArray(transfers);
+        return transfers;
     }
 
     private Account mapRowToAccount(SqlRowSet results) {
@@ -90,8 +93,10 @@ public class JdbcAccountDao implements AccountDao {
 
     private TransferDTO mapRowToTransferDTO(SqlRowSet results) {
 
-        int userFrom = 0;
+        String userFromName = "";
+        String userToName = "";
         int userTo = 0;
+        int userFrom = 0;
 
         int transferId = results.getInt("transfer_id");
         int transferTypeId = results.getInt("transfer_type_id");
@@ -100,22 +105,26 @@ public class JdbcAccountDao implements AccountDao {
         int accountTo = results.getInt("account_to");
         BigDecimal amount = results.getBigDecimal("amount");
 
-        SqlRowSet secondResult = jdbctemplate.queryForRowSet("SELECT user_id FROM accounts WHERE account_id = ?", accountFrom);
+        SqlRowSet secondResult = jdbctemplate.queryForRowSet("SELECT u.username, u.user_id FROM users u JOIN accounts a ON u.user_id = a.user_id WHERE a.account_id = ?", accountFrom);
         while (secondResult.next()) {
+            userFromName = secondResult.getString("username");
             userFrom = secondResult.getInt("user_id");
         }
 
-        SqlRowSet thirdResult = jdbctemplate.queryForRowSet("SELECT user_id FROM accounts WHERE account_id = ?", accountTo);
+        SqlRowSet thirdResult = jdbctemplate.queryForRowSet("SELECT u.username, u.user_id FROM users u JOIN accounts a ON u.user_id = a.user_id WHERE a.account_id = ?", accountTo);
         while (thirdResult.next()) {
+            userToName = thirdResult.getString("username");
             userTo = thirdResult.getInt("user_id");
         }
 
         TransferDTO transferDTO = new TransferDTO();
         transferDTO.setTransferId(transferId);
-        transferDTO.setTransferId(transferTypeId);
+        transferDTO.setType("" + transferTypeId);
         transferDTO.setStatus(status);
         transferDTO.setUserFrom(userFrom);
         transferDTO.setUserTo(userTo);
+        transferDTO.setUserToName(userToName);
+        transferDTO.setUserFromName(userFromName);
         transferDTO.setAmount(amount);
 
         return transferDTO;

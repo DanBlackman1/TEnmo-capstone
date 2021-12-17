@@ -7,11 +7,29 @@ public class TransferDTO {
     private int transferId;
     private int userTo;
     private int userFrom;
+    private String userToName;
+    private String userFromName;
     private BigDecimal amount;
     private String status = "2";
     private String type = "2";
 
     public TransferDTO() {
+    }
+
+    public String getUserToName() {
+        return userToName;
+    }
+
+    public void setUserToName(String userToName) {
+        this.userToName = userToName;
+    }
+
+    public String getUserFromName() {
+        return userFromName;
+    }
+
+    public void setUserFromName(String userFromName) {
+        this.userFromName = userFromName;
     }
 
     public int getTransferId() {

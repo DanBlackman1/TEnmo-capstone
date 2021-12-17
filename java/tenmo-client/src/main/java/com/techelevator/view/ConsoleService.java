@@ -1,6 +1,7 @@
 package com.techelevator.view;
 
 
+import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.TransferDTO;
 import com.techelevator.tenmo.model.User;
@@ -114,10 +115,10 @@ public class ConsoleService {
         for (TransferDTO transferDTO : transfers) {
             if (id == transferDTO.getUserFrom()) {
                 System.out.println(transferDTO.getTransferId() + "            To: "
-                        + transferDTO.getUserTo() + "          $ " + transferDTO.getAmount());
+                        + transferDTO.getUserToName() + "          $ " + transferDTO.getAmount());
             } else if (id == transferDTO.getUserTo()) {
                 System.out.println(transferDTO.getTransferId() + "            From: "
-                        + transferDTO.getUserFrom() + "          $ " + transferDTO.getAmount());
+                        + transferDTO.getUserFromName() + "          $ " + transferDTO.getAmount());
             }
         }
         System.out.println("---------");
@@ -131,8 +132,8 @@ public class ConsoleService {
         System.out.println("Transfer Details");
         System.out.println("--------------------------------------------");
         System.out.println("Id: " + transferDTO.getTransferId());
-        System.out.println("From: " + transferDTO.getUserFrom());
-        System.out.println("To: " + transferDTO.getUserTo());
+        System.out.println("From: " + transferDTO.getUserFromName());
+        System.out.println("To: " + transferDTO.getUserToName());
         if (transferDTO.getType().equals("2")) {
             System.out.println("Type: Send");
         } else {
@@ -147,9 +148,90 @@ public class ConsoleService {
         }
         System.out.println("Amount: $" + transferDTO.getAmount());
     }
-        public void messageToUser (String prompt){
-            System.out.println(prompt);
-        }
 
-
+    public void messageToUser(String prompt) {
+        System.out.println(prompt);
     }
+
+    public BigDecimal getUserInputBigDecimal(String prompt) {
+        BigDecimal result = null;
+        do {
+            out.print(prompt + ": ");
+            out.flush();
+            String userInput = in.nextLine();
+            try {
+                result = new BigDecimal(userInput);
+            } catch (NumberFormatException e) {
+                out.println(System.lineSeparator() + "*** " + userInput + " is not valid ***" + System.lineSeparator());
+            }
+        } while (result == null);
+        return result;
+    }
+
+    public int getAmount(String token, User[] userList, int id) {
+        boolean doneSelectingUser = false;
+        int destination = 0;
+        while (!doneSelectingUser) {
+            presentUserList(userList, id);
+            Integer destinationId = getUserInputInteger("ID to send to");
+            if (destinationId == 0) {
+                doneSelectingUser = true;
+            } else if (id == destinationId) {
+                messageToUser("\nPlease don't send money to yourself. Please just don't.");
+            } else {
+                for (User user : userList) {
+                    if (user.getId().equals(destinationId)) {
+                        destination = destinationId;
+                        doneSelectingUser = true;
+                    }
+                }
+            }
+        }
+        return destination;
+    }
+
+    public BigDecimal checkTransferAmount(Account account) {
+        boolean doneSelectingAmount = false;
+        BigDecimal moneyToSend = new BigDecimal("0");
+        while (!doneSelectingAmount) {
+            boolean notStealing = false;
+            while (!notStealing) {
+                moneyToSend = getUserInputBigDecimal("Enter amount");
+                if (moneyToSend.compareTo(new BigDecimal("0")) > 0) {
+                    notStealing = true;
+                } else {
+                    messageToUser("You have elected to not transfer funds. Goodbye.");
+                    notStealing = true;
+                    doneSelectingAmount = true;
+                }
+            }
+            if (moneyToSend.compareTo(account.getAccountBalance()) <= 0.0) {
+                doneSelectingAmount = true;
+            } else {
+                presentBalance(account.getAccountBalance());
+                messageToUser("Current transfer amount greater than available balance.  Please try again!");
+            }
+        }
+        return moneyToSend;
+    }
+
+    public Integer checkTransferId(TransferDTO[] transfers, int id) {
+       boolean doneSelectingTransfer = false;
+        Integer chosenTransferId = 0;
+        while (!doneSelectingTransfer) {
+            presentTransferList(transfers, id);
+            chosenTransferId = getUserInputInteger("Please enter a transfer ID that appears in the list: ");
+           if (chosenTransferId == 0) {
+             doneSelectingTransfer = true;
+            } else {
+               for (TransferDTO transferDTO : transfers) {
+                   if (transferDTO.getTransferId() == chosenTransferId) {
+                       doneSelectingTransfer = true;
+                   }
+               }
+           }
+       }
+        return chosenTransferId;
+    }
+
+}
