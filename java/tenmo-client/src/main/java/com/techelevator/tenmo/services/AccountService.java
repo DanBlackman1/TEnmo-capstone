@@ -24,19 +24,20 @@ public class AccountService {
         return account;
     }
 
-    public List<User> getAllAccounts(String token) {
+    public User[] getAllAccounts(String token) {
 
         HttpEntity entity = entityMaker(token);
 
-        ResponseEntity<User[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, User[].class);
+        ResponseEntity<User[]> response = restTemplate.exchange(url + "/users", HttpMethod.GET, entity, User[].class);
         User[] users = response.getBody();
-        return new ArrayList<>(Arrays.asList(users));
+        return /*new ArrayList<>(Arrays.asList(*/ users;
     }
 
     public boolean sendTransfer(String token, TransferDTO transferDTO) {
         boolean success = false;
+        //TransferDTO transfer;
         HttpEntity entity = entityMaker(token, transferDTO);
-
+       // transfer = restTemplate.postForObject(url, HttpMethod.POST, entity, TransferDTO.class)
         ResponseEntity<TransferDTO> transfer = restTemplate.exchange(url, HttpMethod.POST, entity, TransferDTO.class);
         if (transfer != null) {
             success = true;
@@ -56,7 +57,7 @@ public class AccountService {
     private HttpEntity entityMaker(String token, TransferDTO transferDTO) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        //headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<TransferDTO> entity = new HttpEntity<>(transferDTO, headers);
         return entity;
     }

@@ -1,12 +1,14 @@
 package com.techelevator.view;
 
 
+import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.User;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.List;
 import java.util.Scanner;
 
@@ -84,14 +86,16 @@ public class ConsoleService {
 		System.out.println("```");
 	}
 
-	public void presentUserList(List<User> users) {
+	public void presentUserList(User[] users, int id) {
 		System.out.println("```");
 		System.out.println("-------------------------------------------");
 		System.out.println("Users                                      ");
 		System.out.println("ID          Name                           ");
 		System.out.println("-------------------------------------------");
 		for (User user : users) {
-			System.out.println(user.getId() + "          " + user.getUsername());
+			if (!user.getId().equals(id)) {
+				System.out.println(user.getId() + "          " + user.getUsername());
+			}
 		}
 		System.out.println("---------");
 		System.out.println();

@@ -9,7 +9,8 @@ public class TransferDTO {
     private BigDecimal amount;
     private boolean approved = true;
 
-
+    public TransferDTO() {
+    }
     public int getUserTo() {
         return userTo;
     }

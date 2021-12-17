@@ -100,31 +100,33 @@ public class App {
 
         // ******************************Holder for DTO Object*******************************
         TransferDTO transfer = new TransferDTO();
+        transfer.setUserTo(1000);
+        transfer.setAmount(new BigDecimal("0"));
         transfer.setUserFrom(currentUser.getUser().getId());
 
         // ******************************Presenting the list of users*******************************
-        while (doneSelectingUser == false) {
-            List<User> userList = accountService.getAllAccounts((currentUser.getToken()));
-            console.presentUserList(userList);
+        while (!doneSelectingUser) {
+            User[] userList = accountService.getAllAccounts((currentUser.getToken()));
+            console.presentUserList(userList, currentUser.getUser().getId());
 
             // ******************************Gather user input*******************************
             String answer = console.getUserInput("ID to send to");
             Integer destinationId = Integer.parseInt(answer);
 
 // ******************************Evaluating validity of userid*******************************
-            if (answer.equals("0")) {
+            if (destinationId == 0) {
                 doneSelectingUser = true;
+                doneSelectingAmount = true;
             }
 
             for (User user : userList) {
-                if (user.getId() == destinationId) {
-
-                    transfer.setUserTo(destinationId);
-                    doneSelectingUser = true;
+                    if (user.getId().equals(destinationId)) {
+                        transfer.setUserTo(destinationId);
+                        doneSelectingUser = true;
+                    }
                 }
-            }
-
-            while (doneSelectingAmount == false) {
+        }
+            while (!doneSelectingAmount) {
 // ******************************Prompt for amount*******************************
                 BigDecimal moneyToSend = new BigDecimal(console.getUserInputInteger("Enter amount"));
 // ***********************validate amount (balance sufficient?)********************
@@ -139,12 +141,15 @@ public class App {
                     console.messageToUser("Current transfer amount greater than available balance.  Please try again!");
                 }
             }
-        }
+           if (transfer.getUserTo() != 1000) {
        boolean success = accountService.sendTransfer(currentUser.getToken(), transfer);
-        if (success) {
-            console.messageToUser("Grand success!");
+       if (success) {
+          console.messageToUser("Grand success!");
         }
+           }
     }
+
+
 
     private void requestBucks() {
         // TODO Auto-generated method stub

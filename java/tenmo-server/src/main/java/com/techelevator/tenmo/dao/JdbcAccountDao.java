@@ -47,16 +47,24 @@ public class JdbcAccountDao implements AccountDao {
 
     public void processTransfer(TransferDTO transferDTO){
 
-        String sqlBegin = "BEGIN TRANSACTION;";
+        String sqlBegin = "BEGIN TRANSACTION; ";
         String sqlEnd = "COMMIT;";
 
-        String sqlBalIncrease = "UPDATE accounts SET balance = balance + ? WHERE user_id = ?";
-        String sqlBalDecrease = "UPDATE accounts SET balance = balance - ? WHERE user_id = ?";
+        String sqlBalIncrease = "UPDATE accounts SET balance = balance + ? WHERE user_id = ?; ";
+        String sqlBalDecrease = "UPDATE accounts SET balance = balance - ? WHERE user_id = ?; ";
 
-        SqlRowSet results = jdbctemplate.queryForRowSet(sqlBegin + sqlBalDecrease + sqlBalIncrease + sqlEnd,
+        jdbctemplate.update(sqlBegin + sqlBalDecrease + sqlBalIncrease + sqlEnd,
                 transferDTO.getAmount(), transferDTO.getUserFrom(), transferDTO.getAmount(), transferDTO.getUserTo());
         // CREATE A TRANSFER RECORDED METHOD LATER TO HOUSE THE BELOW LOGIC
-        
+
+        /*SqlRowSet results1 = jdbctemplate.queryForRowSet("SELECT account_id FROM accounts WHERE user_id = ?", transferDTO.getUserTo());
+        int userToAccountId = results1.getInt("account_id");
+        SqlRowSet results2 = jdbctemplate.queryForRowSet("SELECT account_id FROM accounts WHERE user_id = ?", transferDTO.getUserFrom());
+        int userFromAccountId = results2.getInt("account_id"); */
+
+        String transferRecordSql = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount)" +
+                " VALUES (2, 2, (SELECT account_id FROM accounts WHERE user_id = ?), (SELECT account_id FROM accounts WHERE user_id = ?), ?)";
+        jdbctemplate.update(transferRecordSql, transferDTO.getUserFrom(), transferDTO.getUserTo(), transferDTO.getAmount());
     }
 
     private Account mapRowToAccount(SqlRowSet results) {
@@ -70,12 +78,12 @@ public class JdbcAccountDao implements AccountDao {
     private User mapRowToUser(SqlRowSet results) {
         long id = results.getLong("user_id");
         String username = results.getString("username");
-        String password = results.getString("password_hash");
+        //String password = results.getString("password_hash");
 
         User user = new User();
         user.setId(id);
         user.setUsername(username);
-        user.setPassword(password);
+        //user.setPassword(password);
         return user;
     }
 
