@@ -16,5 +16,7 @@ public interface AccountDao {
 
     void processTransfer(TransferDTO transferDTO);
 
+    public List<TransferDTO> listTransfers(long userId);
+
 
 }

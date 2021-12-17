@@ -41,6 +41,12 @@ public class AccountController {
         return transferDTO;
     }
 
+    @GetMapping("/transfers")
+    public TransferDTO[] transferList(Principal principal) {
+       return accountDao.listTransfers(userDao.findByUsername(principal.getName()).getId()).toArray(new TransferDTO[0]);
+
+    }
+
 
 
 }

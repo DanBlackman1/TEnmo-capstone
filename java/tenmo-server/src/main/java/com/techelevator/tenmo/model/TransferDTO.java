@@ -4,12 +4,23 @@ import java.math.BigDecimal;
 
 public class TransferDTO {
 
-
+    private int transferId;
     private int userTo;
     private int userFrom;
     private BigDecimal amount;
-    private boolean approved = true;
+    private String status = "2";
+    private String type = "2";
 
+
+
+
+    public int getTransferId() {
+        return transferId;
+    }
+
+    public void setTransferId(int transferId) {
+        this.transferId = transferId;
+    }
 
     public int getUserTo() {
         return userTo;
@@ -35,11 +46,19 @@ public class TransferDTO {
         this.amount = amount;
     }
 
-    public boolean isApproved() {
-        return approved;
+    public String getStatus() {
+        return status;
     }
 
-    public void setApproved(boolean approved) {
-        this.approved = approved;
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

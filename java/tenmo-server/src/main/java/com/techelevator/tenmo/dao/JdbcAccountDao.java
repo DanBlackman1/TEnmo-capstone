@@ -33,7 +33,7 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
-    public List<User> listAllUsers(){
+    public List<User> listAllUsers() {
         List<User> userList = null;
 
         String sql = "SELECT user_id, username, password_hash, FROM users ";
@@ -42,10 +42,11 @@ public class JdbcAccountDao implements AccountDao {
             userList.add(mapRowToUser(results));
 
         }
-        return  userList;
+        return userList;
     }
 
-    public void processTransfer(TransferDTO transferDTO){
+    @Override // added this potentially unnecessarily
+    public void processTransfer(TransferDTO transferDTO) {
 
         String sqlBegin = "BEGIN TRANSACTION; ";
         String sqlEnd = "COMMIT;";
@@ -55,16 +56,28 @@ public class JdbcAccountDao implements AccountDao {
 
         jdbctemplate.update(sqlBegin + sqlBalDecrease + sqlBalIncrease + sqlEnd,
                 transferDTO.getAmount(), transferDTO.getUserFrom(), transferDTO.getAmount(), transferDTO.getUserTo());
-        // CREATE A TRANSFER RECORDED METHOD LATER TO HOUSE THE BELOW LOGIC
 
-        /*SqlRowSet results1 = jdbctemplate.queryForRowSet("SELECT account_id FROM accounts WHERE user_id = ?", transferDTO.getUserTo());
-        int userToAccountId = results1.getInt("account_id");
-        SqlRowSet results2 = jdbctemplate.queryForRowSet("SELECT account_id FROM accounts WHERE user_id = ?", transferDTO.getUserFrom());
-        int userFromAccountId = results2.getInt("account_id"); */
 
         String transferRecordSql = "INSERT INTO transfers (transfer_type_id, transfer_status_id, account_from, account_to, amount)" +
                 " VALUES (2, 2, (SELECT account_id FROM accounts WHERE user_id = ?), (SELECT account_id FROM accounts WHERE user_id = ?), ?)";
         jdbctemplate.update(transferRecordSql, transferDTO.getUserFrom(), transferDTO.getUserTo(), transferDTO.getAmount());
+    }
+
+    @Override
+    public List<TransferDTO> listTransfers(long userId) {
+        List<TransferDTO> transferList = null;
+
+        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from,\n" +
+                "                account_to, amount FROM transfers\n" +
+                "                JOIN accounts ON transfers.account_from = accounts.account_id OR\n" +
+                "                transfers.account_to = accounts.account_id WHERE user_id = ?;";
+
+        SqlRowSet results = jdbctemplate.queryForRowSet(sql, userId);
+        while (results.next()) {
+            TransferDTO transferDTO = mapRowToTransferDTO(results);
+            transferList.add(transferDTO);
+        }
+        return transferList;
     }
 
     private Account mapRowToAccount(SqlRowSet results) {
@@ -73,6 +86,39 @@ public class JdbcAccountDao implements AccountDao {
         BigDecimal accountBalance = results.getBigDecimal("balance");
         Account account = new Account(accountId, userId, accountBalance);
         return account;
+    }
+
+    private TransferDTO mapRowToTransferDTO(SqlRowSet results) {
+
+        int userFrom = 0;
+        int userTo = 0;
+
+        int transferId = results.getInt("transfer_id");
+        int transferTypeId = results.getInt("transfer_type_id");
+        String status = results.getString("transfer_status_id");
+        int accountFrom = results.getInt("account_from");
+        int accountTo = results.getInt("account_to");
+        BigDecimal amount = results.getBigDecimal("amount");
+
+        SqlRowSet secondResult = jdbctemplate.queryForRowSet("SELECT user_id FROM accounts WHERE account_id = ?", accountFrom);
+        while (secondResult.next()) {
+            userFrom = secondResult.getInt("user_id");
+        }
+
+        SqlRowSet thirdResult = jdbctemplate.queryForRowSet("SELECT user_id FROM accounts WHERE account_id = ?", accountTo);
+        while (thirdResult.next()) {
+            userTo = thirdResult.getInt("user_id");
+        }
+
+        TransferDTO transferDTO = new TransferDTO();
+        transferDTO.setTransferId(transferId);
+        transferDTO.setTransferId(transferTypeId);
+        transferDTO.setStatus(status);
+        transferDTO.setUserFrom(userFrom);
+        transferDTO.setUserTo(userTo);
+        transferDTO.setAmount(amount);
+
+        return transferDTO;
     }
 
     private User mapRowToUser(SqlRowSet results) {

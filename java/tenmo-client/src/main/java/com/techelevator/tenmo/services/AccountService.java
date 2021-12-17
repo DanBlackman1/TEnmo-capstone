@@ -33,6 +33,16 @@ public class AccountService {
         return /*new ArrayList<>(Arrays.asList(*/ users;
     }
 
+    public TransferDTO[] viewUserTransfers(String token) {
+        HttpEntity entity = entityMaker(token);
+
+        ResponseEntity<TransferDTO[]> response =
+                restTemplate.exchange(url + "/transfers" , HttpMethod.GET, entity, TransferDTO[].class);
+
+    TransferDTO[] transfers = response.getBody();
+    return  transfers;
+    }
+
     public boolean sendTransfer(String token, TransferDTO transferDTO) {
         boolean success = false;
         //TransferDTO transfer;

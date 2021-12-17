@@ -6,6 +6,7 @@ import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.AuthenticationServiceException;
 import com.techelevator.view.ConsoleService;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -83,6 +84,23 @@ public class App {
 
     private void viewTransferHistory() {
         // TODO Auto-generated method stub
+        boolean doneSelectingTransfer = false;
+        TransferDTO[] transferArray = accountService.viewUserTransfers(currentUser.getToken());
+
+        // ******************************Presenting the list of Transfers*******************************
+        while (!doneSelectingTransfer)
+            console.presentTransferList(transferArray, currentUser.getUser().getId());
+        Integer chosenTransferId = console.getUserInputInteger("Transfer to view by ID: ");
+        if (chosenTransferId == 0) {
+            doneSelectingTransfer = true;
+        }
+        for (TransferDTO transferDTO : transferArray) {
+            if (transferDTO.getUserFrom() == chosenTransferId || transferDTO.getUserTo() == chosenTransferId) {
+                console.presentChosenTransfer(transferDTO);
+                doneSelectingTransfer = true;
+            }
+
+        }
 
 
     }
@@ -94,7 +112,7 @@ public class App {
 
     // ADD the part of the method that talks to AccountService
     private void sendBucks() {
-        // TODO Auto-generated method stub
+
         boolean doneSelectingUser = false;
         boolean doneSelectingAmount = false;
 
@@ -108,47 +126,42 @@ public class App {
         while (!doneSelectingUser) {
             User[] userList = accountService.getAllAccounts((currentUser.getToken()));
             console.presentUserList(userList, currentUser.getUser().getId());
-
             // ******************************Gather user input*******************************
             String answer = console.getUserInput("ID to send to");
             Integer destinationId = Integer.parseInt(answer);
-
-// ******************************Evaluating validity of userid*******************************
+            // ******************************Evaluating validity of userid*******************************
             if (destinationId == 0) {
                 doneSelectingUser = true;
                 doneSelectingAmount = true;
             }
-
             for (User user : userList) {
-                    if (user.getId().equals(destinationId)) {
-                        transfer.setUserTo(destinationId);
-                        doneSelectingUser = true;
-                    }
-                }
-        }
-            while (!doneSelectingAmount) {
-// ******************************Prompt for amount*******************************
-                BigDecimal moneyToSend = new BigDecimal(console.getUserInputInteger("Enter amount"));
-// ***********************validate amount (balance sufficient?)********************
-                Account account = accountService.getBalance(currentUser.getToken());
-
-                if (moneyToSend.compareTo(account.getAccountBalance()) <= 0.0) {
-                    transfer.setAmount(moneyToSend);
-                    doneSelectingAmount = true;
-
-                } else {
-                    console.presentBalance(account.getAccountBalance());
-                    console.messageToUser("Current transfer amount greater than available balance.  Please try again!");
+                if (user.getId().equals(destinationId)) {
+                    transfer.setUserTo(destinationId);
+                    doneSelectingUser = true;
                 }
             }
-           if (transfer.getUserTo() != 1000) {
-       boolean success = accountService.sendTransfer(currentUser.getToken(), transfer);
-       if (success) {
-          console.messageToUser("Grand success!");
         }
-           }
-    }
+        while (!doneSelectingAmount) {
+// ******************************Prompt for amount*******************************
+            BigDecimal moneyToSend = new BigDecimal(console.getUserInputInteger("Enter amount"));
+// ***********************validate amount (balance sufficient?)********************
+            Account account = accountService.getBalance(currentUser.getToken());
 
+            if (moneyToSend.compareTo(account.getAccountBalance()) <= 0.0) {
+                transfer.setAmount(moneyToSend);
+                doneSelectingAmount = true;
+            } else {
+                console.presentBalance(account.getAccountBalance());
+                console.messageToUser("Current transfer amount greater than available balance.  Please try again!");
+            }
+        }
+        if (transfer.getUserTo() != 1000) {
+            boolean success = accountService.sendTransfer(currentUser.getToken(), transfer);
+            if (success) {
+                console.messageToUser("Grand success!");
+            }
+        }
+    }
 
 
     private void requestBucks() {
