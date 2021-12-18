@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
+import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -16,11 +17,16 @@ import java.util.List;
 @Component
 public class JdbcAccountDao implements AccountDao {
 
-    private JdbcTemplate jdbctemplate;
+    private JdbcTemplate jdbctemplate = new JdbcTemplate(jdbctemplate);
 
     public JdbcAccountDao(JdbcTemplate jdbctemplate) {
         this.jdbctemplate = jdbctemplate;
     }
+
+       public JdbcAccountDao(DataSource dataSource) { this.jdbctemplate = new JdbcTemplate(dataSource);}
+
+
+
 
     @Override
     public Account getAccountBalance(String username) {

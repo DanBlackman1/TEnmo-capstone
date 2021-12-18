@@ -12,11 +12,9 @@ public interface AccountDao {
 
     Account getAccountBalance(String username);
 
-   // List<User> listAllUsers();
-
     void processTransfer(TransferDTO transferDTO);
 
-    public TransferDTO[] listTransfers(long userId);
+    TransferDTO[] listTransfers(long userId);
 
 
 }
