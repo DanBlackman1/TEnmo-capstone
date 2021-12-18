@@ -17,13 +17,14 @@ import java.util.List;
 @Component
 public class JdbcAccountDao implements AccountDao {
 
-    private JdbcTemplate jdbctemplate = new JdbcTemplate(jdbctemplate);
+    private JdbcTemplate jdbctemplate;
 
     public JdbcAccountDao(JdbcTemplate jdbctemplate) {
         this.jdbctemplate = jdbctemplate;
     }
 
-       public JdbcAccountDao(DataSource dataSource) { this.jdbctemplate = new JdbcTemplate(dataSource);}
+    // public JdbcAccountDao(DataSource dataSource) { this.jdbctemplate = new JdbcTemplate(dataSource);}
+    // were not able to get mock data to not interfere with REAL data, issue with constructor for jdbc template
 
 
 

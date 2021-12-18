@@ -39,9 +39,9 @@ VALUES (10, 1, 140.00),
        (30, 3, 3000.42);
 
 INSERT INTO transfers (transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount)
-Values (1, 2, 2, 1, 2, 20.00),
-       (2, 2, 2, 2, 3, 20.00),
-       (3, 2, 2, 3, 1, 20.00);
+Values (1, 2, 2, 10, 20, 20.00),
+       (2, 2, 2, 20, 30, 20.00),
+       (3, 2, 2, 30, 10, 20.00);
 
 COMMIT;
 
