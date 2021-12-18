@@ -46,9 +46,6 @@ public class AccountController {
     public TransferDTO[] transferList(Principal principal) {
        long userId = userDao.findIdByUsername(principal.getName());
        return accountDao.listTransfers(userId);
-       // TransferDTO[] transfers;
-       // transfers = new TransferDTO[]{};
-        //return transfers;
     }
 
 

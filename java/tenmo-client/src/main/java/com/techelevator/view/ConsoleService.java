@@ -83,70 +83,70 @@ public class ConsoleService {
     }
 
     public void presentBalance(BigDecimal balance) {
-        System.out.println("```");
-        System.out.println("Your current account balance is: $" + balance);
-        System.out.println("```");
+        out.println("```");
+        out.println("Your current account balance is: $" + balance);
+        out.println("```");
     }
 
     public void presentUserList(User[] users, int id) {
-        System.out.println("```");
-        System.out.println("-------------------------------------------");
-        System.out.println("Users                                      ");
-        System.out.println("ID              Name                       ");
-        System.out.println("-------------------------------------------");
+        out.println("```");
+        out.println("-------------------------------------------");
+        out.println("Users                                      ");
+        out.println("ID              Name                       ");
+        out.println("-------------------------------------------");
         for (User user : users) {
             if (!user.getId().equals(id)) {
-                System.out.println(user.getId() + "          " + user.getUsername());
+                out.printf("%-12s %-20s\n", user.getId(), user.getUsername());
             }
         }
-        System.out.println("---------");
-        System.out.println();
-        System.out.println("Enter ID of user you are sending to (0 to cancel):");
-        System.out.println();
+        out.println("---------");
+        out.println();
+        out.println("Enter ID of user you are sending to (0 to cancel):");
+        out.println();
     }
 
     public void presentTransferList(TransferDTO[] transfers, int id) {
 
-        System.out.println("```");
-        System.out.println("-------------------------------------------");
-        System.out.println("Transfers                                  ");
-        System.out.println("ID             From/To              Amount ");
-        System.out.println("-------------------------------------------");
+        out.println("```");
+        out.println("-------------------------------------------");
+        out.println("Transfers                                  ");
+        out.println("ID             From/To              Amount ");
+        out.println("-------------------------------------------");
         for (TransferDTO transferDTO : transfers) {
             if (id == transferDTO.getUserFrom()) {
-                System.out.println(transferDTO.getTransferId() + "            To: "
-                        + transferDTO.getUserToName() + "          $ " + transferDTO.getAmount());
+                out.printf("%-12s %-6s %-17s %-2s %1.2f\n",transferDTO.getTransferId(), "To:",
+                        transferDTO.getUserToName(), "$", transferDTO.getAmount());
             } else if (id == transferDTO.getUserTo()) {
-                System.out.println(transferDTO.getTransferId() + "            From: "
-                        + transferDTO.getUserFromName() + "          $ " + transferDTO.getAmount());
+                out.printf("%-12s %-6s %-17s %-2s %1.2f\n",transferDTO.getTransferId(), "From:",
+                        transferDTO.getUserFromName(), "$", transferDTO.getAmount());
             }
         }
-        System.out.println("---------");
-        System.out.println();
-        System.out.println("Please enter transfer ID to view details (0 to cancel):");
-        System.out.println();
+        out.println("---------");
+        out.println();
+        out.println("Please enter transfer ID to view details (0 to cancel):");
+        out.println();
     }
 
     public void presentChosenTransfer(TransferDTO transferDTO) {
-        System.out.println("--------------------------------------------");
-        System.out.println("Transfer Details");
-        System.out.println("--------------------------------------------");
-        System.out.println("Id: " + transferDTO.getTransferId());
-        System.out.println("From: " + transferDTO.getUserFromName());
-        System.out.println("To: " + transferDTO.getUserToName());
+        out.println("--------------------------------------------");
+        out.println("Transfer Details");
+        out.println("--------------------------------------------");
+        out.println("Id: " + transferDTO.getTransferId());
+        out.println("From: " + transferDTO.getUserFromName());
+        out.println("To: " + transferDTO.getUserToName());
         if (transferDTO.getType().equals("2")) {
-            System.out.println("Type: Send");
+            out.println("Type: Send");
         } else {
-            System.out.println("Type: Request");
+            out.println("Type: Request");
         }
         if (transferDTO.getStatus().equals("1")) {
-            System.out.println("Status: Pending");
+            out.println("Status: Pending");
         } else if (transferDTO.getStatus().equals("2")) {
-            System.out.println("Status: Approved");
+            out.println("Status: Approved");
         } else if (transferDTO.getStatus().equals("3")) {
-            System.out.println("Status: Rejected");
+            out.println("Status: Rejected");
         }
-        System.out.println("Amount: $" + transferDTO.getAmount());
+        out.println("Amount: $" + transferDTO.getAmount());
     }
 
     public void messageToUser(String prompt) {
@@ -168,7 +168,7 @@ public class ConsoleService {
         return result;
     }
 
-    public int getAmount(String token, User[] userList, int id) {
+    public int getAmount(User[] userList, int id) {
         boolean doneSelectingUser = false;
         int destination = 0;
         while (!doneSelectingUser) {

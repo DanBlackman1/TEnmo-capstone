@@ -44,9 +44,7 @@ public class AccountService {
 
     public boolean sendTransfer(String token, TransferDTO transferDTO) {
         boolean success = false;
-        //TransferDTO transfer;
         HttpEntity entity = entityMaker(token, transferDTO);
-       // transfer = restTemplate.postForObject(url, HttpMethod.POST, entity, TransferDTO.class)
         ResponseEntity<TransferDTO> transfer = restTemplate.exchange(url, HttpMethod.POST, entity, TransferDTO.class);
         if (transfer != null) {
             success = true;
@@ -66,7 +64,6 @@ public class AccountService {
     private HttpEntity entityMaker(String token, TransferDTO transferDTO) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
-        //headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<TransferDTO> entity = new HttpEntity<>(transferDTO, headers);
         return entity;
     }

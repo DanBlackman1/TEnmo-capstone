@@ -114,7 +114,7 @@ public class App {
         transfer.setUserFrom(currentUser.getUser().getId());
 
         User[] userList = accountService.getAllAccounts((currentUser.getToken()));
-        int potentialUserId = console.getAmount(currentUser.getToken(), userList, currentUser.getUser().getId());
+        int potentialUserId = console.getAmount(userList, currentUser.getUser().getId());
         if (potentialUserId != 0) {
             transfer.setUserTo(potentialUserId);
 

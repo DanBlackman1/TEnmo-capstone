@@ -12,7 +12,7 @@ public interface AccountDao {
 
     Account getAccountBalance(String username);
 
-    List<User> listAllUsers();
+   // List<User> listAllUsers();
 
     void processTransfer(TransferDTO transferDTO);
 

@@ -34,19 +34,6 @@ public class JdbcAccountDao implements AccountDao {
         return account;
     }
 
-    @Override
-    public List<User> listAllUsers() {
-        List<User> userList = null;
-
-        String sql = "SELECT user_id, username, password_hash, FROM users ";
-        SqlRowSet results = jdbctemplate.queryForRowSet(sql);
-        while (results.next()) {
-            userList.add(mapRowToUser(results));
-
-        }
-        return userList;
-    }
-
     @Override // added this potentially unnecessarily
     public void processTransfer(TransferDTO transferDTO) {
 
@@ -97,7 +84,6 @@ public class JdbcAccountDao implements AccountDao {
         String userToName = "";
         int userTo = 0;
         int userFrom = 0;
-
         int transferId = results.getInt("transfer_id");
         int transferTypeId = results.getInt("transfer_type_id");
         String status = results.getString("transfer_status_id");
@@ -105,18 +91,19 @@ public class JdbcAccountDao implements AccountDao {
         int accountTo = results.getInt("account_to");
         BigDecimal amount = results.getBigDecimal("amount");
 
-        SqlRowSet secondResult = jdbctemplate.queryForRowSet("SELECT u.username, u.user_id FROM users u JOIN accounts a ON u.user_id = a.user_id WHERE a.account_id = ?", accountFrom);
+        SqlRowSet secondResult = jdbctemplate.queryForRowSet("SELECT u.username, u.user_id FROM users u JOIN accounts a " +
+                "ON u.user_id = a.user_id WHERE a.account_id = ?", accountFrom);
         while (secondResult.next()) {
             userFromName = secondResult.getString("username");
             userFrom = secondResult.getInt("user_id");
         }
 
-        SqlRowSet thirdResult = jdbctemplate.queryForRowSet("SELECT u.username, u.user_id FROM users u JOIN accounts a ON u.user_id = a.user_id WHERE a.account_id = ?", accountTo);
+        SqlRowSet thirdResult = jdbctemplate.queryForRowSet("SELECT u.username, u.user_id FROM users u JOIN accounts a " +
+                "ON u.user_id = a.user_id WHERE a.account_id = ?", accountTo);
         while (thirdResult.next()) {
             userToName = thirdResult.getString("username");
             userTo = thirdResult.getInt("user_id");
         }
-
         TransferDTO transferDTO = new TransferDTO();
         transferDTO.setTransferId(transferId);
         transferDTO.setType("" + transferTypeId);
@@ -130,7 +117,20 @@ public class JdbcAccountDao implements AccountDao {
         return transferDTO;
     }
 
-    private User mapRowToUser(SqlRowSet results) {
+     /* @Override
+    public List<User> listAllUsers() {
+        List<User> userList = null;
+
+        String sql = "SELECT user_id, username, password_hash, FROM users ";
+        SqlRowSet results = jdbctemplate.queryForRowSet(sql);
+        while (results.next()) {
+            userList.add(mapRowToUser(results));
+
+        }
+        return userList;
+    } */
+
+   /* private User mapRowToUser(SqlRowSet results) {
         long id = results.getLong("user_id");
         String username = results.getString("username");
         //String password = results.getString("password_hash");
@@ -140,6 +140,6 @@ public class JdbcAccountDao implements AccountDao {
         user.setUsername(username);
         //user.setPassword(password);
         return user;
-    }
+    } */
 
 }
